@@ -30,7 +30,7 @@ var server = http.createServer(handler.requestHandler);
 console.log("Listening on http://" + ip + ":" + port);
 server.listen(port, ip);
 
-// To start this server, run:
+// To start this server, run::
 //
 //   node basic-server.js
 //
