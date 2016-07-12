@@ -6,7 +6,8 @@ You'll have to figure out a way to export this function from
 this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 **************************************************************/
-//var exports = exports.module = {};
+//var exports = export{}s.module = {};
+var messages = { results: [] };
 
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -23,29 +24,79 @@ exports.requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
+  //console.log('this is the request', request)
+  //console.log('this is the response', response)
   console.log("Serving request type " + request.method + " for url " + request.url);
   var statusCode = 200;
+if(request.url === '/classes/messages' || request.url === '/classes.room1'){
 
   if(request.method === 'POST'){
-    statusCode = 201
-  };
-      
+    statusCode = 201; 
+    var body = []; 
+    request.on('data', function(chunk){
+      body.push(chunk);
+    });
 
-  if(request.method === 'GET'){
+    request.on('end', function(){
+      body = JSON.parse((body.toString()));
+      messages.results.push(body)
+    })
+  }
+  else {
+    statusCode = 200;
+  }
+}
+else {
+  statusCode = 404;
+}
+
+
+//   if(request.method === 'POST'){
+//     statusCode = 201;
+//     // var message = data.toString();
+//     // messages.push(message);
+// var body = [];
+
+// request.on('data', function(chunk) {
+//   body.push(chunk);
+// })
+
+// request.on('end', function() {
+//   body = Buffer.concat(body).toString();
+//   // at this point, `body` has the entire request body stored in it as a string
+//     })
+//     request.on('data', function(data){
+//       messages.push(JSON.stringify(body))
+// });
+
+//     console.log('messages Array', messages)
+
+//   };
+      
+// console.log('response ', response)
+//   if(request.method === 'GET'){
+//     if(request.url !== "/classes/messages") {
+//       statusCode = 404;
+
+//     };
+
+//   }; 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-  };
-  request.on('data', function(data){console.log('data', data)})
+  
+  request.on('data', function(data){console.log('data', data.toString(), 'url', request.url)})
+  //request.on('error', function(e){console.log('BAD Request', e.message)})
 
   // The outgoing status.
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
+  //console.log('these are the headers', headers)
 
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
+  headers['Content-Type'] = "application/json";
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -58,7 +109,7 @@ exports.requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end(JSON.stringify({message: "Hello, World!" , results: []}));
+  response.end(JSON.stringify(messages));
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
