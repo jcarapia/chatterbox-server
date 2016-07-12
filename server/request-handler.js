@@ -5,11 +5,11 @@ in basic-server.js, but it won't work as is.
 You'll have to figure out a way to export this function from
 this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
-**************************************************************/
-//var exports = export{}s.module = {};
-var messages = { results: [] };
+**************************************************************///var exports = export{}s.module = {};
 
-exports.requestHandler = function(request, response) {
+var messages = { results: [] }; // This is where the POSTed messages will be stored. 
+
+exports.requestHandler = function(request, response) { //Export the method in order to make it public and available to the basic-server.
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -24,79 +24,42 @@ exports.requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  //console.log('this is the request', request)
-  //console.log('this is the response', response)
   console.log("Serving request type " + request.method + " for url " + request.url);
-  var statusCode = 200;
-if(request.url === '/classes/messages' || request.url === '/classes/room1'){
 
-  if(request.method === 'POST'){
-    statusCode = 201; 
-    var body = []; 
-    request.on('data', function(chunk){
-      body.push(chunk);
-    });
-
-    request.on('end', function(){
-      body = JSON.parse((body.toString()));
-      messages.results.push(body)
-    })
-  }
-  else {
-    statusCode = 200;
-  }
-}
-else {
-  statusCode = 404;
-}
-
-
-//   if(request.method === 'POST'){
-//     statusCode = 201;
-//     // var message = data.toString();
-//     // messages.push(message);
-// var body = [];
-
-// request.on('data', function(chunk) {
-//   body.push(chunk);
-// })
-
-// request.on('end', function() {
-//   body = Buffer.concat(body).toString();
-//   // at this point, `body` has the entire request body stored in it as a string
-//     })
-//     request.on('data', function(data){
-//       messages.push(JSON.stringify(body))
-// });
-
-//     console.log('messages Array', messages)
-
-//   };
-      
-// console.log('response ', response)
-//   if(request.method === 'GET'){
-//     if(request.url !== "/classes/messages") {
-//       statusCode = 404;
-
-//     };
-
-//   }; 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+  var statusCode = 200; //The default status code 
   
-  //request.on('data', function(data){console.log('data', data.toString(), 'url', request.url)})
-  //request.on('error', function(e){console.log('BAD Request', e.message)})
+  if(request.url === '/classes/messages' || request.url === '/classes/room1'){ //If the request URLs proceed
+
+    if(request.method === 'POST'){ //If the type of request is a POST
+      statusCode = 201; // Change the status code to 201;
+      var body = []; //Create the body variable to store the message as it arrives in chunks.
+      request.on('data', function(chunk){ //On a request.on event, push the chunks into the body array
+        body.push(chunk);
+      });
+      
+      request.on('end', function(){ //On a request.on event, at the end of the request, 
+        body = JSON.parse((body.toString())); //Stringify the body since it comes in as BUFFER binary, this turns it into a JSON string, so then
+                                              //use JSON.parse to turn it into an actual object
+        messages.results.push(body) //push the message object into the results array inside of the messages object
+      })
+    }
+  }else { //if the request does not match the two URLs, then return a 404- Not Found error
+    statusCode = 404;
+  }
+
+
 
   // The outgoing status.
 
   // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
+  var headers = defaultCorsHeaders;                    // the headers tells you what what data/methods the server accepts 
   //console.log('these are the headers', headers)
 
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "application/json";
+  headers['Content-Type'] = "application/json"; // tells the client what type of data is accepted/returned - this case it is JSON
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -109,7 +72,7 @@ else {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end(JSON.stringify(messages));
+  response.end(JSON.stringify(messages)); // Since the GET requests expecta an object with an array of messages assigned to the results key.
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
